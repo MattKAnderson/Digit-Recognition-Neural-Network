@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <utility>
 
-struct image { std::vector< float > pixelIntensity; }
+struct image { std::vector< float > pixelIntensity; };
 
 class mnist_data {
 public:
@@ -22,5 +22,5 @@ public:
 private:
     std::vector< std::pair< image, int > > imgLabelPairs;
     int charArrayToInt(char *bytes);
-}
+};
 #endif

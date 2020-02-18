@@ -1,4 +1,4 @@
-#inlcude "../include/mnist_data.h"
+#include "mnist_data.h"
 
 //validate the image files and load into memory the image data
 mnist_data::mnist_data(std::string imgLoc, std::string labelLoc) {
@@ -7,7 +7,7 @@ mnist_data::mnist_data(std::string imgLoc, std::string labelLoc) {
     int nItems;
     int rows;
     int cols;
-    int pixelPerImage;
+    int pixelsPerImage;
     std::ifstream imgFile(imgLoc, std::ios::binary);
     std::ifstream lblFile(labelLoc, std::ios::binary);
 
@@ -31,7 +31,7 @@ mnist_data::mnist_data(std::string imgLoc, std::string labelLoc) {
     rows = charArrayToInt(fourBytes);
     imgFile.read(fourBytes, 4);
     cols = charArrayToInt(fourBytes);
-    pixelPerImage = cols * rows;
+    pixelsPerImage = cols * rows;
     imgLabelPairs.resize(nItems);
     for (auto it = imgLabelPairs.begin(); it != imgLabelPairs.end(); it++) {
         it->first.pixelIntensity.resize(pixelsPerImage);
@@ -47,15 +47,15 @@ mnist_data::mnist_data(std::string imgLoc, std::string labelLoc) {
 
 //Getter methods
 int mnist_data::numImages() { return imgLabelPairs.size(); }
-int mnist_data::labelAt(int ID) { return imgLabelParis[ID].second; }
+int mnist_data::labelAt(int ID) { return imgLabelPairs[ID].second; }
 image& mnist_data::imgAt(int ID) { return imgLabelPairs[ID].first; }
 
 //shuffle the images (with their label) into a random order
 void mnist_data::shuffle() {
-    using std::chrono;
-    using std::chrono::high_resolution_clock;
+    using namespace std::chrono;
+    typedef high_resolution_clock clk;
     uint64_t seed;
-    seed = duration_cast< microseconds >(now().time_since_epoch()).count();
+    seed = duration_cast< microseconds >(clk::now().time_since_epoch()).count();
     std::mt19937 rng(seed);
     std::shuffle(imgLabelPairs.begin(), imgLabelPairs.end(), rng);
 }
