@@ -9,12 +9,12 @@ OBJ = neuralNet.o mnist_data.o main.o
 VPATH = src
 
 net: $(OBJ)
-	$(CXX) -o $@ $^ $(MKL)
+	$(CXX) $(SPEED) -o $@ $^ $(MKL)
 
 #neuralNet.o: src/neuralNet.cpp $(HEADER)
 #	$(CXX) $(INC) $(CFLAGS) $< -o $@
 %.o: %.cpp $(HEADER)
-	$(CXX) $(INC) $(CFLAGS) $< -o $@ 
+	$(CXX) $(INC) $(SPEED) $(CFLAGS) $< -o $@ 
 
 clean:
 	rm *.o net
