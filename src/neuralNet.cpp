@@ -34,7 +34,7 @@ void neuralNet::SGD(mnist_data& trainData,
 			batchEnd += miniBatchSize;
 		}
 		if (testData) {
-			std::cout << "Epoch " << i << evaluate(*testData) << " / " 
+			std::cout << "Epoch " << i << ":  " << evaluate(*testData) << " / " 
 			          << testData->numImages() << std::endl;
 		} else {
 			std::cout << "Epoch " << i << " complete..." << std::endl;
@@ -57,11 +57,13 @@ int neuralNet::evaluate(mnist_data& testData)
 		//get index of max activation in final layer and compare to expected
 		Eigen::VectorXf::Index maxI;
 		float max = result.maxCoeff(&maxI);
+		//std::cout << maxI << "   " << testData.labelAt(i) << std::endl;
+		//std::cin.get();
 		if(maxI == testData.labelAt(i)) {
 			success++;
 		}
 	}
-
+	return success;
 }
 
 /* Definition for backpropagation method */
@@ -93,12 +95,17 @@ void neuralNet::backprop(Eigen::VectorXf &input,
 	deltaW[deltaW.size() - 1] = deltaB[deltaB.size() - 1] * 
 	                             activations[numLayers - 2].transpose();
 
-	for (int l = 2; l < numLayers - 1; l++) {
+	//this isn't even running!!!
+	for (int l = 2; l < numLayers; l++) {
 		Eigen::VectorXf sp = neuronInputs[numLayers - 1 - l].unaryExpr(std::ptr_fun(sigmoidPrime));
-		deltaB[deltaB.size() - l] = weights[weights.size() - l + 1].transpose() 
-		                            * deltaB[deltaB.size() - l + 1] * sp;
+		deltaB[deltaB.size() - l] = (weights[weights.size() - l + 1].transpose() 
+		                            * deltaB[deltaB.size() - l + 1]).cwiseProduct(sp);
 		deltaW[deltaW.size() - l] = deltaB[deltaB.size() - l] * 
 		                            activations[activations.size() - l - 1].transpose();
+		//std::cout << "sp: " << sp << "\n\n\n";
+		//std::cout << "deltaB: " << deltaB[deltaB.size() - l] << "\n\n\n";
+		//std::cout << "deltaW.row(0)[0]: " << deltaW[deltaW.size() - 1].row(0)[0] << "\n";
+		//std::cin.get();
 	}
 	//returns deltaW and deltaB as params
 }
@@ -132,21 +139,20 @@ void neuralNet::updateMiniBatch(mnist_data &trainData,
 		Eigen::VectorXf expected = hotEncoder(trainData.labelAt(i));
 		Eigen::VectorXf input(layerSizes[0]);
 		input = Eigen::Map<Eigen::VectorXf>(in.data(), in.size());	
-
 		//doing backpropagation with training example
 		backprop(input, expected, deltaW, deltaB);
 		
 		//add adjustments to sum of adjustments
-		for(int i = 0; i < numLayers - 1; i++) {
-			nablaW[i] += deltaW[i];
-			nablaB[i] += nablaB[i];
+		for(int j = 0; j < numLayers - 1; j++) {
+			nablaW[j] += deltaW[j];
+			nablaB[j] += deltaB[j];
 		}
 	}
 
 	//average the adjustments
 	for (int i = 0; i < numLayers - 1; i++) {
-		nablaW[i] /= static_cast<double>(batchStop - batchStart);
-		nablaB[i] /= static_cast<double>(batchStop - batchStart);
+		nablaW[i] /= static_cast<float>(batchStop - batchStart);
+		nablaB[i] /= static_cast<float>(batchStop - batchStart);
 	}
 
 	//calculate new weights and biases
@@ -161,7 +167,7 @@ Eigen::VectorXf neuralNet::feedforward(Eigen::VectorXf &inputActivation)
 	Eigen::VectorXf layer;
 	layer = inputActivation;
 	for(int i = 0; i < numLayers - 1; i++) {
-		layer = weights[i] * layer;
+		layer = (weights[i] * layer).unaryExpr(std::ptr_fun(sigmoid));
 	}
 	return layer;
 }
