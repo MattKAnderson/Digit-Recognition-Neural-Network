@@ -9,11 +9,12 @@
 #include <algorithm>
 #include <utility>
 
-struct image { std::vector< double > pixelIntensity; };
 
 class mnist_data {
 public:
-    mnist_data(std::string imgLoc, std::string labelLoc);
+	struct image { std::vector< double > pixelIntensity; };
+    
+	mnist_data(std::string imgLoc, std::string labelLoc);
     void shuffle();
     int numImages() const;
     int labelAt(int ID) const;

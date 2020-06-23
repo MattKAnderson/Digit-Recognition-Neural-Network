@@ -48,7 +48,7 @@ mnist_data::mnist_data(std::string imgLoc, std::string labelLoc) {
 //Getter methods
 int mnist_data::numImages() const { return imgLabelPairs.size(); }
 int mnist_data::labelAt(int ID) const { return imgLabelPairs[ID].second; }
-const image& mnist_data::imgAt(int ID) const { return imgLabelPairs[ID].first; }
+const mnist_data::image& mnist_data::imgAt(int ID) const { return imgLabelPairs[ID].first; }
 
 //shuffle the images (with their label) into a random order
 void mnist_data::shuffle() {
