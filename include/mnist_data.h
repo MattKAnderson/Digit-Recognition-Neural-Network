@@ -9,15 +9,15 @@
 #include <algorithm>
 #include <utility>
 
-struct image { std::vector< float > pixelIntensity; };
+struct image { std::vector< double > pixelIntensity; };
 
 class mnist_data {
 public:
     mnist_data(std::string imgLoc, std::string labelLoc);
     void shuffle();
-    int numImages();
-    int labelAt(int ID);
-    image& imgAt(int ID);
+    int numImages() const;
+    int labelAt(int ID) const;
+    const image& imgAt(int ID) const;
 
 private:
     std::vector< std::pair< image, int > > imgLabelPairs;

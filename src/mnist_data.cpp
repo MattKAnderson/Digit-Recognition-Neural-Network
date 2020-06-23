@@ -39,16 +39,16 @@ mnist_data::mnist_data(std::string imgLoc, std::string labelLoc) {
         for (int i = 0; i < pixelsPerImage; i++) {
             imgFile.read(fourBytes, 1);
 			unsigned temp = static_cast<unsigned>(static_cast<unsigned char>(fourBytes[0]));
-            it->first.pixelIntensity[i] = static_cast< float >(temp);
+            it->first.pixelIntensity[i] = static_cast< double >(temp);
             it->first.pixelIntensity[i] /= 255.0;
         }
     }
 }
 
 //Getter methods
-int mnist_data::numImages() { return imgLabelPairs.size(); }
-int mnist_data::labelAt(int ID) { return imgLabelPairs[ID].second; }
-image& mnist_data::imgAt(int ID) { return imgLabelPairs[ID].first; }
+int mnist_data::numImages() const { return imgLabelPairs.size(); }
+int mnist_data::labelAt(int ID) const { return imgLabelPairs[ID].second; }
+const image& mnist_data::imgAt(int ID) const { return imgLabelPairs[ID].first; }
 
 //shuffle the images (with their label) into a random order
 void mnist_data::shuffle() {

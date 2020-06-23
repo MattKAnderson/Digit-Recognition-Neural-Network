@@ -10,42 +10,36 @@
 #include <iostream>
 #include "mnist_data.h"
 
-//std::vector<Eigen::MatrixXf, Eigen::aligned_allocator<Eigen::MatrixXf> > fuck;
+//inlined helper mathematics functions
+inline double sigmoid(double x) { return 1.0 / (1.0 + std::exp(-x)); }
+inline double sigmoidPrime(double x) { return sigmoid(x) * (1 - sigmoid(x)); }
+inline Eigen::VectorXd hotEncoder(int lbl) {
+	Eigen::VectorXd encoded = Eigen::VectorXd::Zero(10);
+	encoded[lbl] = 1.0;
+	return encoded;
+}
 
-//typedef std::vector< Eigen::MatrixXf, Eigen::aligned_allocator<Eigen::MatrixXf> > matArray;
-//typedef std::vector< Eigen::VectorXf, Eigen::aligned_allocator< Eigen::VectorXf > > vecArray;
-
-/*
-To do:
-    -constructor         (declared & defined)
-    -feedForward         (declared & defined)
-    -SGD                 (declared & defined)
-    -update_mini_batch   (declared & defined)
-    -backProp            (declared & defined)
-    -evaluate            (declared & defined)
-    -cost_derivative     (declared & defined)
-	-randomizeWeightsBiases (declared & defined)
-*/
 class neuralNet {
 public:
     neuralNet(std::vector<size_t> sizes);
-    int evaluate(mnist_data& testData);
+    int evaluate(const mnist_data& testData);
     void SGD(mnist_data& trainData, 
              size_t epochs, 
              size_t miniBatchSize, 
-             float eta,
+             double eta,
+			 double lambda,
 			 mnist_data *testData=NULL);
 
 private:
-	typedef std::vector< Eigen::MatrixXf, Eigen::aligned_allocator<Eigen::MatrixXf> > matArray;
-	typedef std::vector< Eigen::VectorXf, Eigen::aligned_allocator< Eigen::VectorXf > > vecArray;
+	typedef std::vector< Eigen::MatrixXd, Eigen::aligned_allocator< Eigen::MatrixXd > > matArray;
+	typedef std::vector< Eigen::VectorXd, Eigen::aligned_allocator< Eigen::VectorXd > > vecArray;
     size_t numLayers;
     std::vector<size_t> layerSizes;
     matArray weights;
     vecArray biases;
 
     //Note: used only for the evaluate method
-    Eigen::VectorXf feedforward(Eigen::VectorXf &inputActivation);
+    Eigen::VectorXd feedforward(const Eigen::VectorXd &inputActivation);
 
     /*
         @input: activations for first layer
@@ -57,28 +51,43 @@ private:
         and returns in the last 2 parameters the nudges to the weights and 
         biases corresponding to those steps
     */
-    void backprop(Eigen::VectorXf &input, 
-                  Eigen::VectorXf &expect,
+    void backprop(const Eigen::MatrixXd &input, 
+                  const Eigen::MatrixXd &expect,
                   matArray &deltaWeights,
                   vecArray &deltaBiases);
-
-    /* Use examples from train data at indexes from [start, stop) */
-    void updateMiniBatch(mnist_data &trianData, 
+    
+	/* Use examples from train data at indexes from [start, stop) */
+    void updateMiniBatch(const mnist_data &trianData, 
                          size_t batchStart, 
                          size_t batchStop, 
-                         float eta);
+                         double eta,
+						 double lambda);
 
-    Eigen::VectorXf cost_derivative(Eigen::VectorXf &output, 
-                                    Eigen::VectorXf &expect);
+
+    Eigen::MatrixXd quadratic_cost_derivative(const Eigen::MatrixXd &output, 
+                                    		  const Eigen::MatrixXd &expect,
+											  const Eigen::MatrixXd &inputs);
 	
+    Eigen::MatrixXd cross_entropy_cost_derivative(const Eigen::MatrixXd &output, 
+                                    		  	  const Eigen::MatrixXd &expect);
 	void randomizeWeightsBiases();
 };
 
 //inlined member functions 
-inline Eigen::VectorXf neuralNet::cost_derivative(Eigen::VectorXf &output, 
-                                                  Eigen::VectorXf &expect) 
+inline Eigen::MatrixXd neuralNet::quadratic_cost_derivative(
+												  const Eigen::MatrixXd &output,
+												  const Eigen::MatrixXd &expect,
+												  const Eigen::MatrixXd &inputs)
 {
-    return (output - expect);
+	return (output - expect).cwiseProduct(inputs.unaryExpr(std::ptr_fun(
+											sigmoidPrime)));
+}
+
+inline Eigen::MatrixXd neuralNet::cross_entropy_cost_derivative(
+													const Eigen::MatrixXd &output,
+													const Eigen::MatrixXd &expect)
+{
+	return (output - expect);
 }
 inline void neuralNet::randomizeWeightsBiases() {
 	using namespace std::chrono;
@@ -88,19 +97,11 @@ inline void neuralNet::randomizeWeightsBiases() {
 	std::mt19937 rng(seed);
 	std::normal_distribution<float> normal(0.0, 1.0);
 	for (int i = 0; i < weights.size(); i++) {
-		weights[i] = Eigen::MatrixXf::NullaryExpr(weights[i].rows(),
+		weights[i] = Eigen::MatrixXd::NullaryExpr(weights[i].rows(),
 		                                          weights[i].cols(),
 												  [&]() {return normal(rng);});
-		biases[i] = Eigen::VectorXf::NullaryExpr(biases[i].rows(), 
+		biases[i] = Eigen::VectorXd::NullaryExpr(biases[i].rows(), 
 												 [&]() {return normal(rng);});
 	}
-}
-//inlined helper mathematics functions
-inline float sigmoid(float x) { return 1.0 / (1.0 + std::exp(-x)); }
-inline float sigmoidPrime(float x) { return sigmoid(x) * (1 - sigmoid(x)); }
-inline Eigen::VectorXf hotEncoder(int lbl) {
-	Eigen::VectorXf encoded = Eigen::VectorXf::Zero(10);
-	encoded[lbl] = 1.0;
-	return encoded;
 }
 //#endif
