@@ -16,6 +16,7 @@ public:
 
 private:
 	void writeBMPHeader(std::ofstream& file, int width, int height);
+	void complementBytes(std::vector<int>& bytes);
 	std::vector<int> decimalToHexadecimal(int num);
 };
 

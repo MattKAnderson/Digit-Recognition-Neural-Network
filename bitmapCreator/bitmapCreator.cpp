@@ -94,6 +94,7 @@ void bitmapCreator::writeBMPHeader(std::ofstream& file, int width, int height) {
 
 	// writing height of image in hexadecimal, little endian form
 	std::vector<int> heightInHex = decimalToHexadecimal(height);
+	complementBytes(heightInHex);
 	for (int i = heightInHex.size() - 1; i >= 0; i -= 2) {
 		int value = heightInHex[i];
 		if (i > 0) {
@@ -137,6 +138,23 @@ void bitmapCreator::writeBMPHeader(std::ofstream& file, int width, int height) {
 	// write to the file
 	file.write(header, 54);
 	delete header;
+}
+
+void bitmapCreator::complementBytes(std::vector<int>& semiBytes) {
+	if (semiBytes.size() == 0) { 
+		for (int i = 0; i < 8; i++) { semiBytes.push_back(15); } 
+	}
+	else {
+		std::reverse(semiBytes.begin(), semiBytes.end());
+		semiBytes[0] = 16 - semiBytes[0];
+		int ind = 1;
+		while (ind < semiBytes.size()) {
+			semiBytes[ind] = 15 - semiBytes[ind];
+			ind++;
+		}
+		while (ind < 8) { semiBytes.push_back(15); ind++; }
+		std::reverse(semiBytes.begin(), semiBytes.end());
+	}
 }
 
 std::vector<int> bitmapCreator::decimalToHexadecimal(int num) {

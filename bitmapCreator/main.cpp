@@ -15,7 +15,7 @@ int main() {
 		mnist_data::image tmp = trainData.imgAt(i);
 		std::vector<int> img(tmp.pixelIntensity.size());
 		for (int j = 0; j < img.size(); j++) { 
-			img[j] = static_cast<int>(tmp.pixelIntensity[j]); 
+			img[j] = static_cast<int>(tmp.pixelIntensity[j] * 255.0); 
 		}
 		int label = trainData.labelAt(i);
 		std::string fileName = "sample_" + std::to_string(i) + "_label_"
