@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <random>
 #include "mnist_data.h"
 #include "bitmapCreator.h"
 
@@ -27,8 +28,9 @@ int main() {
 	// test image rotation
 	mnist_data::image orig = trainData.imgAt(5);
 	std::vector<int> img(orig.pixelIntensity.size());
+	std::mt19937 gen(0);
 	for (int i = 0; i < 10; i++) {
-		mnist_data::image rot = mnist_data::distortImage(orig, 0, 0, 0, 0, i);
+		mnist_data::image rot = mnist_data::distortImage(orig, 10.0, gen);
 		std::vector<int> rotImg(rot.pixelIntensity.size());
 		for (int j = 0; j < img.size(); j++) { 
 			img[j] = static_cast<int>(orig.pixelIntensity[j] * 255.0); 

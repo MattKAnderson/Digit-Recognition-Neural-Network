@@ -73,19 +73,31 @@ int mnist_data::charArrayToInt(char* bytes) {
 	return invert;
 }
 
+void mnist_data::expandWithDistortions(int factor, 
+									   double rotationFactor,
+									   uint64_t seed)
+{
+	std::vector<std::pair<image, int>> newSet(imgLabelPairs.size() * factor);
+	std::mt19937 gen(seed);
+	int pos = 0;
+	for (std::pair<image, int> pair : imgLabelPairs) {
+		newSet[pos++] = pair;
+		for (int i = 0; i < factor; i++) {
+			newSet[pos++] = std::make_pair(distortImage(pair.first, 10.0, gen), 
+										   pair.second);
+		}
+	}
+	imgLabelPairs = newSet;
+}
 
 /*
  *  ****need to split into multiple smaller functions for easier maintenance
  */
 mnist_data::image mnist_data::distortImage(const mnist_data::image& original,
-												double rotationFactor,
-												double translationFactor,
-												double noiseFactor,
-												double elasticFactor,
-												uint64_t seed)
+										   double rotationFactor,
+										   std::mt19937& gen)
 {
-	std::mt19937 gen(seed);
-	std::normal_distribution<> dist(0, 7.5);
+	std::normal_distribution<> dist(0, rotationFactor);
 
 	// start with rotation -- fixed example
 	double random = dist(gen);

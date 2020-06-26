@@ -8,6 +8,9 @@
 
 int main() {
 	long long unsigned hiddenLayerSize = 800;
+	unsigned seed = 0;
+	int expandFactor = 5;
+	double rotationFactor = 10.0;
 	std::string trainImgLoc = "imgData/train-images.idx3-ubyte";
 	std::string trainlblLoc = "imgData/train-labels.idx1-ubyte";
 	std::string testImgLoc = "imgData/t10k-images.idx3-ubyte";
@@ -17,7 +20,11 @@ int main() {
 	mnist_data trainData(trainImgLoc, trainlblLoc);
 	mnist_data testData(testImgLoc, testlblLoc);
 	std::cout << "Created data_set objects.." << std::endl;
-	
+
+	//expanding dataset
+	trainData.expandWithDistortions(expandFactor, rotationFactor, seed);
+	std::cout << "Expanded train data " << expandFactor << " times" << std::endl;
+
 	//declaring network
 	neuralNet network({784, hiddenLayerSize, 10});
 	std::cout << "Initialized neural network.." << std::endl;
