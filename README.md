@@ -20,8 +20,13 @@ Image rotated by -14.22 degrees: ![Image](images/rotation_14_degrees.jpg "rotate
   - [Intel MKL libraries](https://software.intel.com/content/www/us/en/develop/tools/math-kernel-library.html)
   
 # Compiling
+### Instructions 
+Execute the Makefile in the root directory using the command "make"
+
+### Notes
   - Makefile is written to use the GNU compiler
   - Eigen3 headers are expected in your systems standard include directories
     - E.g. /usr/include
   - Makefile assumes you have set the MKLROOT environment variable to the root of you Intel MKL install directory
+  
   
