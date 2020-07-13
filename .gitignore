@@ -1,2 +1,15 @@
+# no object files
 **/*.o
+
+# no bitmap files
 **/*.bmp
+
+# no exectuables
+bitmapCreator/imgTest
+net
+
+# do not include the old testing methods for nn
+testingMethods
+
+# do not include speed comparison
+pythonSpeedComparison
