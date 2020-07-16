@@ -27,6 +27,7 @@ Execute the Makefile in the root directory using the command "make"
   - Makefile is written to use the GNU compiler
   - Eigen3 headers are expected in your systems standard include directories
     - E.g. /usr/include
+    - these directories are listed as part of the output of the command "cpp -v"
   - Makefile assumes you have set the MKLROOT environment variable to the root of you Intel MKL install directory
   
   
